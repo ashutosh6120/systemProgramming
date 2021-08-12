@@ -1,0 +1,664 @@
+                    SYSTEM PROGRAMMING LAB(CS47L)
+                            COMPILER DESIGN:
+                        Lex and Yacc Programs
+
+
+Name::  Ashutosh Dodamani
+USN::   01JST19CS024
+RollNo: 09
+Section: A
+Semester: 4
+
+
+
+
+This Contains Lex and Yacc Programs.!!!
+
+
+LEX PROGRAMS!!!
+
+
+1]  Count the number of vowels and consonats in a given string.
+
+
+%{
+int vowels = 0;
+int consonents = 0;
+%}
+%%
+[aeiouAEIOU] {vowels++;}
+[a-zA-Z] {consonents++;}
+%%
+int main()
+{
+yylex();
+printf("no of vowels = %d\n",vowels);
+printf("no of consonents = %d\n",consonents);
+return(0);
+}
+int yywrap(){
+return 1;
+}
+
+
+Output::
+ashutosh
+no of vowels = 3
+no of consonants = 5
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+2]  Create a pattern to recognize and develop a lex program to count the number of 
+    a)  positive and negative integers
+    b)  positive and negative fractions
+
+
+%{
+int posnum=0, negnum=0, posflo=0, negflo=0;
+%}
+%%
+([0-9]+) { posnum++;}
+-([0-9]+) { negnum++;}
+([0-9]*\.[0-9]+) { posflo++;}
+-([0-9]*\.[0-9]+) { negflo++;}
+%%
+int main()
+{
+yylex();
+printf("no of positive numbers=%d\n",posnum);
+printf("no of negative numbers=%d\n",negnum);
+printf("no of floating-positive numbers=%d\n",posflo);
+printf("no of floating-negative numbers=%d\n",negflo);
+return(0);
+}
+int yywrap(){
+return 1;
+}
+
+
+Output::
+99 625 4125.24 1225.021 -845 -9643 -8585.256 -85685.256612 -12 -4125 955.65  8458  4125
+no of positive numbers=4
+no of negative numbers=4
+no of floating-positive numbers=3
+no of floating-negative numbers=2
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+3]  Write a program to recognize a valid C program and also check for valid loop.
+
+
+%{
+int valid=0;
+FILE *fp=NULL;
+%}
+chars [a-zA-Z]
+digit [0-9]
+us _
+id {chars} ({chars}|{digit}|{us})+
+newline \n
+blank " "
+preprocessor "#define" {blank}+{id}{blank}+(\+|-)?{digit}+(\.{digit}+)?
+include "#include" {blank}*\<{id}\."h"\>
+%%
+({include}|{newline}|{preprocessor})*
+"int main \(\)" ({newline}|{blank})*\{(./{newline}|{blank})*\}{valid=1;}
+%%
+int yywrap(){
+return 1;
+}
+int main(){
+fp=(FILE*)fopen("name.c","r");
+yyin=fp;
+printf("Reading\"name.c".\n");
+yylex();
+if(valid==1)
+  printf("valid c program\n");
+else
+  printf("\ninvalid c program\n");
+return 0;
+}
+
+
+
+Output::
+Reading "name.c"
+valid c program
+
+Reading "name.c"
+invalid c program
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+4]    Recognize a valid arithmetic expression and also count no of operators present
+      and print them separately.
+
+
+%{
+#include<stdio.h>
+#include<string.h>
+int noprt=0,nopnd=0,valid=1,top=-1,i=0,j=0;
+char opnd[10][10], oprt[10][10], a[100];
+%}
+%%
+"(" { top++; a[top] = '('; }
+"{" { top++; a[top] = '{'; }
+"[" { top++; a[top] = '['; }
+")" { if (a[top]!= '(') { valid=0; return 0;}
+      else
+        top--;
+    }
+"}" { if(a[top]!='{')
+      {
+          valid=0; return 0; }
+      else
+          top--;
+    }
+"+"|"-"|"*"|"/" { noprt++; strcpy(oprt[i],yytext); i++; }
+[0-9]+|[a-zA-Z][a-zA-Z0-9]* { nopnd++; strcpy(opnd[j],yytext); j++; }
+%%
+int main()
+{
+    int k;
+    printf("enter the arithmetic expression:");
+    yylex();
+    if(valid==1 && top==-1 && (nopnd-noprt)==1)
+    {
+        printf("\nvalid\n");
+        printf("the operators are\n");
+        for(k=0;k<i;k++)
+        printf("%s\n",oprt[k]);
+        printf("the operands are\n");
+        for(k=0;k<j;k++)
+        printf("%s\n",opnd[k]);
+    }
+    else
+        printf("expression is invalid\n");
+    return (0);
+}
+int yywrap(){
+    return 1;
+}
+
+
+
+Output::
+enter the arithmetic expression: 10/8*7+4-2*9
+valid
+the operators are /
+                  *
+                  +
+                  -
+                  *
+the operands are 10
+                 8
+                 7
+                 4
+                 2
+                 9
+            
+
+enter the arithmetic expression: 52++84-96*74--25
+expression is invalid
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+5]  Write a lex program to recognize and count the number of identifiers in a file.
+
+
+%{
+int count=0;
+char identifiers[50][50];
+%}
+underscore _
+alpha [a-zA-Z]
+digit [0-9]
+identifier ({underscore}|{alpha})({underscore}|{alpha}|{digit})*
+%%
+[^\na-zA-ZA-Z_]+[^\n]* { }
+{
+strcpy(identifiers[count],yytext);
+count++;
+}
+.|\n { }
+%%
+int main()
+{
+yylex();
+printf("no of identifiers: %d\n",count);
+printf("identifiers are:\n");
+for(int i=0;i<count;i++)
+   printf("%s\n",identifiers[i]);
+return 0;
+}
+int yywrap()
+{
+return 1;
+}
+
+
+
+Output::
+harvard
+stanford
+$dollar
+123number
+_siliconvalley
+karnataka
+linux_tts
+windows
+#123456789
+no of identifiers:6
+harvard     karnataka
+stanford    linux_tts
+_siliconvalley  windows
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+6]  Program to count the number of operators and operands in given valid expression.
+
+%{
+int oprtrs=0, oprnds=0;
+%}
+%%
+("+"|"-"|"*"|"/") { oprtrs++; }
+[0-9]+(\.[0-9]+)?|[a-zA-Z][a-zA-Z0-9_]* { oprnds++; }
+(.|\n);
+%%
+int yywrap() {}
+int main()
+{
+printf("enter arithmetic expression:\n");
+yylex();
+printf("operators:%d\n Operands:%d\n",oprtrs,oprnds);
+return 0;
+}
+
+
+Output::
+enter arithmetic expression:
+8*7+4-2/1
+operators:4
+operands:5
+
+
+enter arithmetic expression:
+a+b-c*d/e+f-g*h
+operators: 7
+operands: 8
+
+
+
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+
+
+YACC PROGRAMS!!!
+
+
+1]  Recognize a valid and evaluate arithmetic expression that uses operators +,-,*,/
+
+
+Lex part----->>>>
+%{
+#include<stdio.h>
+#include "y.tab.h"
+int yylval;
+%} 
+%%
+[0-9]* {
+	yylval = atoi(yytext);
+	return ID;
+       }
+[\+\*\-\/] { return yytext[0]; }
+\n { return 0; }
+. { return yytext[0]; }
+%%
+int yywrap()
+{
+return 1;
+}
+
+
+Yacc part---->>>>
+%{
+#include<stdio.h>
+#include<stdlib.h>
+int yylex();
+void yyerror(char *msg);
+%}
+%token ID
+%left'+''-'
+%left'*''/'
+%left'('')'
+%%
+start: E { printf("valid arithmetic expression\n");
+	   printf("result=%d\n",$1);
+	   exit(0);
+         }
+;
+E:E'+'E { $$=$1+$3; }
+|E'-'E { $$=$1-$3; }
+|E'*'E { $$=$1*$3; }
+|E'/'E { $$=$1/$3; }
+|'('E')' { $$=$2; }
+|ID { $$=$1; }
+;
+%%
+void yyerror(char* msg)
+{
+printf("\nExpression is invalid\n");
+exit(0);
+}
+int main()
+{
+printf("Enter the expression\n");
+yyparse();
+return 0;
+}
+
+
+Output::
+enter the expression:
+8-9*7/4+2
+valid arithmetic expression
+result=-5
+
+enter the expression:
+74769+969652
+valid arithmetic expression
+result=1044421
+
+enter the expression:
+6++4
+expression is invalid
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+2]  Recognize nested if control statements and displays the number of levels of nesting
+    in the nested if.
+
+
+
+Lex part----->>>>
+%{
+#include "y.tab.h"
+%}
+%%
+"if" {return IF;}
+[sS][0-9]* {return S;}
+"<"|">"|"=="|"<="|">="|"!=" {return RELOP;}
+[0-9]+ {return NUMBER;}
+[a-z][a-zA-Z0-9_]* {return ID;}
+\n {return NL;}
+. {return yytext[0];}
+%%
+
+
+Yacc part---->>>
+%{
+#include<stdio.h>
+#include<stdlib.h>
+int count=0;
+%}
+%token IF RELOP S NUMBER ID NL
+%%
+stmt: if_stmt NL { printf("No. of nested if statements=%d\n",count); exit(0); }
+;
+if_stmt : IF'('cond')''{'if_stmt'}' { count++; }
+          |S
+;
+cond: x RELOP x 
+;
+x:ID | NUMBER
+;
+%%
+int yyerror(char *msg)
+{
+printf("the statement is invalid\n");
+exit(0);
+}
+
+main()
+{
+printf("enter the statement\n");
+yyparse();
+}
+
+
+
+Output::
+enter the statement: if(a<b){s}
+No. of nested if statements=1
+
+enter the statement: if(a,b){s}
+the statement is invalid
+
+enter the statement: if(a<b){if(b>a){s}}
+No. of nested if statements=2
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+3] a)   Design a yacc program to recognize the grammar a^nb:\n>=0. Verify following strings
+    belong to grammar i)a   ii)ab  iii)aaab   iv)abb
+
+ 
+Lex part---->>>
+%{
+#include"y.tab.h"
+%}
+%%
+[aA] { return A; }
+[ab] { return B; }
+\n { return NL; }
+. { return yytext[0]; }
+%%
+int yywrap()
+{ return 1; }
+
+
+Yacc part---->>>
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token A B NL
+%%
+start: A S B NL { printf("string accepted\n"); exit(0); }
+;
+S: S A
+|
+;
+%%
+int yyerror(char *msg){
+    printf("string rejected\n");
+    exit(0);
+}
+int main()
+{
+    printf("enter string of a's and b's:\n");
+    yyparse();
+    return 0;
+}
+
+
+Output::
+enter string of a's and b's: a
+string rejected
+
+enter string of a's and b's: ab
+string accepted
+
+enter string of a's and b's: aaab
+string accepted
+
+enter string of a's and b's: abb
+string rejected
+
+---------------------------------------------------------------------------------------------------
+
+b)   Design a yacc program to recognize the grammar a^nb^n:\n>=0. Verify following strings
+    belong to grammar
+
+Lex part----->>>>
+%{
+#include "y.tab.h"
+%}
+%%
+[aA] { return A; }
+[bB] { return B; }
+\n { return NL; }
+. { return yytext[0]; }
+%%
+int yywrap()
+{
+return 1;
+}
+
+
+
+Yacc part---->>>>
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token A B NL
+%%
+stmt: S NL { printf("valid string\n");
+			exit(0); }
+;
+S: A S B |
+;
+%%
+
+int yyerror(char *msg)
+{
+printf("invalid string\n");
+exit(0);
+}
+main()
+{
+printf("enter the string\n");
+yyparse();
+}
+
+
+Output::
+enter the string: aabb
+valid string
+
+enter the string: abbb
+invalid string
+
+enter the string: aaabb
+invalid string
+
+enter the string: aaabbb
+valid string
+
+enter the string: b
+invalid string
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+4]  Recognize valid declaration and definition statement in C.
+
+
+
+Lex part---->>>>
+
+%{
+#include<stdio.h>
+#include<stdlib.h>
+#include "y.tab.h"
+%}
+%%
+"int"|"float"|"char"|"long" { return DT;}
+[0-9]+ {return DIG;}
+[A-Za-z][A-Za-z0-9]* {return ID;}
+";"|"=" {return yytext[0];}
+. {}
+%%
+int yywrap(){
+return 1;
+}
+
+
+Yacc part---->>>>
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token DT ID DIG
+%%
+start:DT ID';' { printf("valid declaration statement\n");}
+|DT ID'='X';' { printf("valid declaration with definition statement\n"); }
+|ID'='X';' { printf("valid definition statement\n");}
+;
+X:ID
+|DIG
+;
+%%
+void yyerror(char *msg)
+{
+printf("invalid declaration or definition statement\n");
+exit(0);
+}
+int main()
+{
+printf("enter the statement\n");
+yyparse();
+return 0;
+}
+
+
+Output::
+enter the statement
+int x=10;
+valid declaration with definition statement
+
+int x,y;
+invalid declaration or definition statement
+
+enter the statement
+int y=10
+int x; 
+invalid declaration or definition statement
+
+
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
