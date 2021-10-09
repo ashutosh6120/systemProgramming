@@ -1,0 +1,751 @@
+//SYSTEM CALL PROGRAMS WITH OUTPUTS
+// ALL 14  PROGRAMS ALONG WITH OUTPUT ARE THERE!!!
+
+
+1]   FIRST PROGRAM
+
+
+#include<stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main()
+{
+    printf("Before fork\n");
+    fork();
+    //fork();
+    //fork();
+    printf("after first fork() call\n");
+    fork();
+    printf("after second fork() call\n");
+    fork();
+    printf("after third fork() call\n");
+    return 0;
+}
+
+
+
+OUTPUT::
+Before fork
+after first fork() call
+after first fork() call
+after second fork() call
+after second fork() call
+after third fork() call
+after second fork() call
+after third fork() call
+after second fork() call
+after third fork() call
+after third fork() call
+after third fork() call
+after third fork() call
+after third fork() call
+after third fork() call
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+2]   SECOND PROGRAM
+
+
+#include<stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main()
+{
+    pid_t pid, mypid, myppid;
+    pid = getpid();
+    printf("before fork: process id is %d\n", pid);
+    pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork() failure\n");
+        return 1;
+    }
+
+    //child process
+    if(pid == 0)
+    {
+        printf("This is child process\n");
+        mypid = getpid();
+        myppid = getppid();
+        printf("process id is %d and PPID is %d\n",mypid,myppid);
+    }
+
+    else{ //Parent process
+        sleep(2);
+        printf("this is parent process\n");
+        mypid = getpid();
+        myppid = getppid();
+        printf("process id is %d and PPID is %d\n",mypid,myppid);
+        printf("newly created process id or child pid is %d\n",pid);
+    }
+    return 0;
+}
+
+
+
+OUTPUT::
+before fork: process id is 22370
+This is child process
+process id is 22371 and PPID is 22370
+this is parent process
+process id is 22370 and PPID is 2361
+newly created process id or child pid is 22371
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+3]  THIRD PROGRAM
+
+
+#include<stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid, mypid, myppid;
+    int i=10;
+    pid = getpid();
+    printf("before fork: process id is %d\n", pid);
+    pid = fork();
+
+    if(pid < 0)
+    {
+    perror("fork() failure\n");
+    return 1;
+    }
+
+    //Child process
+    if(pid == 0)
+    {
+        printf("This is child process\n");
+        execlp("ls", "ls",NULL);
+        printf("end of child process\n"); //is executed only if there is error in execlp call
+    }
+
+    else{ //parent process
+        wait(NULL);
+        printf("This is Parent process\n");
+    }
+    printf("i=%d\n",i);
+    return 0;
+}
+
+
+
+OUTPUT::
+before fork: process id is 22827
+This is child process
+pr3  pr3.c
+This is Parent process
+i=10
+
+
+before fork: process id is 30613
+This is child process
+pr3  pr3.c
+This is Parent process
+i=10
+
+
+before fork: process id is 31403
+This is child process
+pr3  pr3.c
+This is Parent process
+i=10
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+4]  FOURTH PROGRAM
+
+
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+
+int main()
+{
+    pid_t pid,mypid,myppid;
+    int i=10;
+    pid = getpid();
+    printf("Before fork: Process id is: %d\n",pid);
+    pid = fork();
+
+    if(pid<0)
+    {
+        printf("fork() failure\n");
+        return 1;
+    }
+    //child process
+    if(pid==0)
+    {
+        printf("This is child process\n");
+        printf("My process id is %d anf PPID is %d\n",getpid(),getppid());
+        //execlp("/bin/|s","ls",NULL);
+        i+=10;
+    }
+    else{ //parent process
+        sleep(2);
+        printf("This is parent process\n");
+        i+=20;
+        printf("My process id is %d and PPID is %d\n",getpid(),getppid());
+    }
+    printf("i=%d\n",i);
+    return 0;
+}
+
+
+OUTPUT::
+Before fork: Process id is: 22896
+This is child process
+My process id is 22897 anf PPID is 22896
+i=20
+This is parent process
+My process id is 22896 and PPID is 2361
+i=30
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+5]  FIFTH PROGRAM
+
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+
+int main()
+{
+    pid_t pid,mypid,myppid;
+    int i=10;
+    pid = getpid();
+    printf("Before fork: Process id is: %d\n",pid);
+    pid = fork();
+
+    if(pid<0)
+    {
+        printf("fork() failure\n");
+        return 1;
+    }
+    //child process
+    if(pid==0)
+    {
+        printf("This is child process\n");
+        execlp("ls","ls",NULL);
+        printf("End of child process\n"); //is executed only if there is error in execlp call
+    }
+    else{ //parent process
+        wait(NULL);
+        printf("This is parent process\n");
+    }
+    printf("i=%d\n",i);
+    return 0;
+}
+
+
+
+OUTPUT::
+Before fork: Process id is: 22969
+This is child process
+pr5  pr5.c
+This is parent process
+i=10
+
+
+Before fork: Process id is: 30858
+This is child process
+pr5  pr5.c
+This is parent process
+i=10
+
+
+Before fork: Process id is: 30870
+This is child process
+pr5  pr5.c
+This is parent process
+i=10
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+6]  SIXTH PROGRAM
+
+
+//ORPHAN PROCESS!!!
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+#include<stdlib.h>
+
+int main()
+{
+    pid_t pid;
+    printf("Before fork: Process id is: %d\n",getpid());
+    pid = fork();
+
+    if(pid<0)
+    {
+        printf("fork() failure\n");
+        return 1;
+    }
+    //child process
+    if(pid==0)
+    {
+        sleep(3);
+        printf("This is child process with id=%d\n parent id=%d\n",getpid(),pid);
+        exit(0);
+    }
+    return 0;
+}
+
+
+OUTPUT::
+Before fork: Process id is: 23054
+This is child process with id=23055
+parent id=0
+
+
+Before fork: Process id is: 30895
+This is child process with id=30896
+parent id=0
+
+
+Before fork: Process id is: 30905
+This is child process with id=30906
+parent id=0
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+7]  SEVENTH PROGRAM
+
+
+//ZOMBIE PROCESS!!!
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+#include<stdlib.h>
+
+int main()
+{
+    pid_t pid;
+    printf("Before fork: Process id is: %d\n",getpid());
+    pid = fork();
+
+    if(pid<0)
+    {
+        printf("fork() failure\n");
+        return 1;
+    }
+    //child process
+    if(pid==0)
+    {
+        //sleep(5);
+        printf("This is child process with id=%d\n parent id=%d\n",getpid(),getppid());
+        exit(0);
+    }
+    else{ //parent process
+        //wait(NULL);
+        sleep(5);
+        printf("This is parent process with id=%d\n and child id=%d\n",getpid(),pid);
+    }
+    return 0;
+}
+
+
+
+OUTPUT::
+Before fork: Process id is: 23228
+This is child process with id=23229
+ parent id=23228
+This is parent process with id=23228
+ and child id=23229
+
+
+
+Before fork: Process id is: 30415
+This is parent process with id=30415
+ and child id=30416
+This is child process with id=30416
+ parent id=30415
+
+
+
+Before fork: Process id is: 30482
+This is child process with id=30483
+ parent id=30482
+This is parent process with id=30482
+ and child id=30483
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+8]  EIGHTH PROGRAM
+
+
+/*  TO DEMONSTRATE THE USE OF I/O SYSTEM CALLS FOR CONSOLE. */
+
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+
+int main()
+{
+    char buf[30];
+    int n;
+    //read(int_fd, void *_buf, size_t _nbytes)
+    //write(int_fd, const void *_buf, size_t _n)
+    n=read(0,buf,30);
+    /*fd- file descriptor, buf-buffer to read data from
+    n bytes- length of buffer; n - no of bytes read on success */ 
+    printf("n=%d\n",n);
+    write(1,buf,n);
+    return 0;
+}
+
+
+OUTPUT::
+hello world
+n=12
+hello world
+
+abcd
+n=5
+abcd
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+9]  NINTH PROGRAM
+
+
+
+/* To demonstrate the use of I/o system calls for FILe I/o(read,write,open,lseek) */
+
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<fcntl.h>
+
+int main()
+{
+    char buf[30];
+    int n,fd,fd1;
+    fd=open("m6.c",O_RDWR);
+    //fd1=open("m10.c",O_RDWR | O_CREAT);
+    //open(const char *_file, int _oflag, int mode)
+    /* path to the file which you want to use;
+    flags-O_RDONLY: read only, O_WRONLY: write only, O_RDWR: read and write,
+    O_CREAT: create file if it doesn't exist, O_EXCL:prevent reation if it already exists */ 
+    printf("file descriptor is %d\n",fd);
+    if(fd==-1)
+    {
+        printf("Error\n");
+    }
+    else
+    {
+        n=read(fd,buf,10);
+        write(1,buf,n);
+        printf("\n");
+
+        /*lseek(fd,05,SEEK_CUR); //skips 5 characters from current position
+        n=read(fd,buf,10); //read 10 ch/cs
+        write(1,buf,n);
+        printf("\n");*/
+
+
+        /*lseek(fd,10,SEEK_SET); //skips 10 characters from beginning
+        n=read(fd,buf,10); //read 10 ch/cs
+        write(1,buf,n);
+        printf("\n");*/
+
+
+        /*lseek(fd,-5,SEEK_CUR); //skips 5 ch/cs back from current position
+        n=read(fd,buf,10); 
+        write(1,buf,n);
+        printf("\n");*/
+
+
+        /*lseek(fd,-10,SEEK_END); 
+        n=read(fd,buf,10);
+        write(1,buf,n);
+        printf("\n");*/
+    }
+
+    return 0;
+}
+
+
+OUTPUT::
+file descriptor is -1
+Error
+
+
+file descriptor is 3
+1234567890
+fghijXXXXX
+abcdefghij
+fghijXXXXX
+he events
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+10] TENTH PROGRAM
+
+
+//read from file and write into a new file
+
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<fcntl.h>
+
+int main()
+{
+    char buf[100];
+    int n,fd1,fd2;
+    fd1=open("m6.c",O_RDONLY);
+    n=read(fd1,buf,100);
+    fd2=open("m12.c",O_CREAT | O_WRONLY,0642);
+    write(fd2,buf,n);
+    write(1,buf,n);
+    printf("\n");
+    return 0;
+}
+
+
+
+OUTPUT::
+1234567890abcdefghijXXXXXXXXXX facilities provided in a computer must give the program complete cont
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+11]   ELEVENTH PROGRAM
+
+
+//Producer program shared memory
+
+/* program to illustarte shared memory implementation using the following
+ system calls: shmegt, shmat,shmdt,shmctl,shm_open, shm_mmap */
+
+ #include<stdio.h>
+ #include<unistd.h>
+ #include<stdlib.h>
+ #include<sys/types.h>
+ #include<sys/shm.h>
+ #include<sys/ipc.h>
+ #include<sys/stat.h>
+ #include<fcntl.h>
+ #include<string.h>
+ #include<sys/mman.h>
+
+ int main()
+ {
+    void * psm;
+    char buf[10];
+    int shmid1;
+    shmid1=shm_open("OS",O_CREAT | O_RDWR,0666);
+    ftruncate(shmid1,1024);
+    psm=mmap(0,1024,PROT_WRITE,MAP_SHARED,shmid1,0);
+    printf("Key/Id/fd of the shared memory: %d\n",shmid1);
+    printf("shared memory is attached at:%p\n",psm);
+    printf("enter some data to write to shared memory\n");
+    read(0,buf,10);
+    sprintf(psm,"%s",buf);
+    return 0;
+ }
+
+
+
+OUTPUT::
+Key/id/fd of the shared memory: 1
+shared memory is attched at: 0x7f2345262b0987
+enter some data to write to shared memory 
+abcd
+
+
+Key/Id/fd of the shared memory: 3
+shared memory is attached at:0x7fc9ff145000
+enter some data to write to shared memory
+siliconvalley
+
+
+Key/Id/fd of the shared memory: 3
+shared memory is attached at:0x7f59b717e000
+enter some data to write to shared memory
+sanjose
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+12]  TWELEVETH  PROGRAM
+
+
+//consumer program shared memory
+
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/shm.h>
+#include<sys/ipc.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+#include<sys/mman.h>
+
+int main()
+{
+    void * psm;
+    int shmid;
+    shmid=shm_open("OS",O_RDONLY,0666);
+    ftruncate(shmid,1024);
+    psm=mmap(0,1024,PROT_READ,MAP_SHARED,shmid,0);
+    printf("Key/Id/fd of the shared memory: %d\n",shmid);
+    printf("shared memory for consumer is attached at:%p\n",psm);
+    printf("%s",(char *) psm);
+    printf("\n");
+    shm_unlink("OS");
+    return 0;
+}
+
+
+OUTPUT::
+Key/Id/fd of the shared memory: 3
+shared memory for consumer is attached at:0x7fc2f202c000
+sanjose
+
+
+Key/Id/fd of the shared memory: -1
+shared memory for consumer is attached at:0xffffffffffff
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+13]  THIRTEENTH PROGRAM
+
+
+
+//using shmget, shmat system calls
+
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/shm.h>
+#include<sys/ipc.h>
+
+int main()
+{
+    void * psm;
+    char buf[10];
+    int shmid;
+    //to get the shared memory id
+    shmid=shmget((key_t) 1122,1024,0666 | IPC_CREAT);
+    printf("key of the shared memory:%d\n",shmid);
+    //to attach shared memory segment to an address
+    psm=shmat(shmid,NULL,0666);
+    printf("memory attached at:%p\n",psm);
+    printf("enter some data to write to shared memory\n");
+    read(0,buf,10);
+    sprintf(psm,"%s", buf);
+    //to detach the shared  memoryc segment from the address space of the calling process
+    shmdt(psm);
+    return 0;
+}
+
+
+
+OUTPUT::
+key of the shared memory:1310756
+memory attached at:0x7efe95975000
+enter some data to write to shared memory
+abcd
+
+
+key of the shared memory:1343517
+memory attached at:0x7f5ec1336000
+enter some data to write to shared memory
+hello
+
+
+key of the shared memory:1343517
+memory attached at:0x7f2a2ad90000
+enter some data to write to shared memory
+siliconvalley
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+14]  FOURTEENTH PROGRAM
+
+
+
+//CONSUMER
+
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/shm.h>
+#include<string.h>
+
+int main()
+{
+    void * psm;
+    char buf[10];
+    int shmid;
+    shmid=shmget((key_t) 1122,1024,0666);
+    printf("key of the shared memory:%d\n",shmid);
+    psm=shmat(shmid,NULL,0666);
+    printf("process attached at:%p\n",psm);
+    printf("data read from the shared memory is:%s",(char *) psm);
+    printf("\n");
+    //shmctl() performs the control operation specified by cmd
+    //shmctl(shmid,IPC_RMID,NULL); //IPC_RMID marks the segment to destroyed
+    return 0;
+}
+
+
+
+OUTPUT::
+key of the shared memory:1310756
+process attached at:0x7fd037097000
+data read from the shared memory is:abcd
+��
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+// THE END
